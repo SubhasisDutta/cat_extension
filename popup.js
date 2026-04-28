@@ -15,8 +15,15 @@ let latest = null;
 function paint() {
   if (!latest) return;
   const { settings, state, now } = latest;
-  els.workInput.value = T.clampWorkMinutes(settings.workMinutes);
-  els.enabled.checked = !!settings.enabled;
+  // Don't clobber a field the user is currently editing — paint() runs every
+  // second from the local tick, so any keystroke would be overwritten before
+  // Save lands. Only sync the input when it isn't focused.
+  if (document.activeElement !== els.workInput) {
+    els.workInput.value = T.clampWorkMinutes(settings.workMinutes);
+  }
+  if (document.activeElement !== els.enabled) {
+    els.enabled.checked = !!settings.enabled;
+  }
 
   const remaining = T.remainingSeconds(state, now);
   if (!settings.enabled) {
