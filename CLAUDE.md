@@ -24,9 +24,18 @@ The personality is intentional: annoyed, entitled, unbothered. Phrases live in
   `chrome.storage.local`. Schedules `chrome.alarms` (`cat-phase-end`,
   `cat-tick`). Handles messages: `GET_STATE`, `SET_WORK_MINUTES`,
   `SET_ENABLED`, `FORCE_BREAK`. Broadcasts `CAT_STATE` to every tab + popup.
-- [content.js](content.js) — per-tab overlay. Renders during `phase === "break"`,
-  no-ops otherwise. Defends the overlay with `MutationObserver` re-attach and a
-  capture-phase keydown swallow for Esc / Ctrl-W / Cmd-W / F11.
+  When a break begins (or the worker wakes mid-break), calls
+  `injectIntoAllTabs()` — runs `chrome.scripting.executeScript` against every
+  tab so tabs that were open *before* install / reload still get the overlay.
+  `canInject(url)` filters out chrome://, chrome-extension://, the Web Store,
+  view-source://, etc., where Chrome refuses script injection.
+- [content.js](content.js) — per-tab overlay. Three render modes:
+  (1) `phase === "break"` → full overlay + scroll lock + capture-phase
+  blockers for wheel/touch/contextmenu/Esc/Cmd-W;
+  (2) `phase === "work"` && `T.shouldWarn(state, now)` → small bottom-right
+  toast with countdown ("FAT CAT INCOMING 0:30");
+  (3) otherwise → silent. Defends the break overlay with `MutationObserver`
+  re-attach. Idempotent via `window.__catExtensionLoaded__`.
 - [cat.js](cat.js) — inline SVG + personality phrases. No DOM access here.
 - [overlay.css](overlay.css) — overlay styles. ID-prefixed (`#cat-extension-overlay`)
   to avoid host-page collisions. Uses CSS vars `--cat-size` and `--cat-stretch`.
@@ -34,6 +43,12 @@ The personality is intentional: annoyed, entitled, unbothered. Phrases live in
   settings UI. Talks to the worker only via `chrome.runtime.sendMessage`.
 - [tests/run-tests.js](tests/run-tests.js) — zero-dependency runner; discovers
   `*.test.js` siblings; exposes `test`, `test.only`, `assert.{eq,approx,truthy,throws}`.
+- [icons/logo.svg](icons/logo.svg) — source-of-truth logo. PNG variants at
+  16/32/48/128 sit alongside it and are referenced from
+  [manifest.json](manifest.json) (`icons` + `action.default_icon`) and the popup.
+- [scripts/build-icons.js](scripts/build-icons.js) — zero-dep PNG renderer
+  (uses only `fs` + `zlib`). The SVG and the script must be edited together
+  if the logo changes — the script does not parse the SVG.
 
 ## State model
 

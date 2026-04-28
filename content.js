@@ -1,6 +1,7 @@
-// Injected into every tab. Renders the cat overlay during 'break' and
-// silently no-ops during 'work'. Defends itself against DOM removal,
-// keyboard close attempts, and Esc.
+// Injected into every tab. Renders the cat overlay during 'break',
+// a small heads-up toast in the last 30 seconds of 'work', and silently
+// no-ops otherwise. Defends itself against DOM removal, key/scroll close
+// attempts, and Esc.
 
 (function () {
   if (window.__catExtensionLoaded__) return;
@@ -9,11 +10,15 @@
   const T = window.CatTimer;
   const ART = window.CatArt;
   const OVERLAY_ID = "cat-extension-overlay";
+  const WARNING_ID = "cat-extension-warning";
 
   let lastPayload = null;
   let tickInterval = null;
   let mutationObserver = null;
   let keyHandler = null;
+  let blockHandler = null;
+  let savedHtmlOverflow = null;
+  let savedBodyOverflow = null;
 
   function buildOverlay() {
     const root = document.createElement("div");
@@ -36,18 +41,36 @@
       el = buildOverlay();
       document.documentElement.appendChild(el);
       installDefenses(el);
+      lockScroll();
     }
     return el;
   }
 
   function removeOverlay() {
     uninstallDefenses();
+    unlockScroll();
     const el = document.getElementById(OVERLAY_ID);
     if (el) el.remove();
   }
 
+  function lockScroll() {
+    if (savedHtmlOverflow !== null) return;
+    savedHtmlOverflow = document.documentElement.style.overflow || "";
+    savedBodyOverflow = document.body ? document.body.style.overflow || "" : "";
+    document.documentElement.style.overflow = "hidden";
+    if (document.body) document.body.style.overflow = "hidden";
+  }
+
+  function unlockScroll() {
+    if (savedHtmlOverflow === null) return;
+    document.documentElement.style.overflow = savedHtmlOverflow;
+    if (document.body) document.body.style.overflow = savedBodyOverflow || "";
+    savedHtmlOverflow = null;
+    savedBodyOverflow = null;
+  }
+
   function installDefenses(el) {
-    // Re-add the overlay if any script tries to remove it during a break.
+    // Re-attach the overlay if any script tries to remove it during a break.
     mutationObserver = new MutationObserver(() => {
       if (!lastPayload) return;
       if (lastPayload.state.phase !== "break") return;
@@ -61,9 +84,6 @@
     });
 
     // Swallow Esc / Ctrl-W / Cmd-W / F11 inside the overlay scope.
-    // (Browsers won't let extensions block top-level Cmd-W reliably, but
-    // we block any in-page handlers and stop bubbling so site-level
-    // shortcuts don't dismiss us.)
     keyHandler = (e) => {
       if (!lastPayload || lastPayload.state.phase !== "break") return;
       const blocked =
@@ -76,6 +96,20 @@
       }
     };
     window.addEventListener("keydown", keyHandler, true);
+
+    // Block scroll / wheel / touch / context-menu so the user can't
+    // interact with the page underneath.
+    blockHandler = (e) => {
+      if (!lastPayload || lastPayload.state.phase !== "break") return;
+      const overlay = document.getElementById(OVERLAY_ID);
+      if (overlay && e.target && overlay.contains(e.target)) return;
+      e.stopPropagation();
+      if (e.cancelable) e.preventDefault();
+    };
+    const opts = { capture: true, passive: false };
+    window.addEventListener("wheel", blockHandler, opts);
+    window.addEventListener("touchmove", blockHandler, opts);
+    window.addEventListener("contextmenu", blockHandler, opts);
   }
 
   function uninstallDefenses() {
@@ -87,17 +121,60 @@
       window.removeEventListener("keydown", keyHandler, true);
       keyHandler = null;
     }
+    if (blockHandler) {
+      const opts = { capture: true };
+      window.removeEventListener("wheel", blockHandler, opts);
+      window.removeEventListener("touchmove", blockHandler, opts);
+      window.removeEventListener("contextmenu", blockHandler, opts);
+      blockHandler = null;
+    }
+  }
+
+  function ensureWarning() {
+    let el = document.getElementById(WARNING_ID);
+    if (!el) {
+      el = document.createElement("div");
+      el.id = WARNING_ID;
+      el.innerHTML = `
+        <span class="cat-warn-pulse"></span>
+        <span class="cat-warn-title">FAT CAT INCOMING</span>
+        <span class="cat-warn-time" data-warn-time>0:30</span>
+      `;
+      document.documentElement.appendChild(el);
+    }
+    return el;
+  }
+
+  function removeWarning() {
+    const el = document.getElementById(WARNING_ID);
+    if (el) el.remove();
   }
 
   function render(payload) {
     lastPayload = payload;
     const { state, settings, now } = payload;
 
-    if (!settings.enabled || state.phase !== "break") {
+    if (!settings.enabled || state.phase === "idle") {
       removeOverlay();
+      removeWarning();
       return;
     }
 
+    if (state.phase === "work") {
+      removeOverlay();
+      if (T.shouldWarn(state, now)) {
+        const el = ensureWarning();
+        el.querySelector("[data-warn-time]").textContent = T.formatMMSS(
+          T.remainingSeconds(state, now)
+        );
+      } else {
+        removeWarning();
+      }
+      return;
+    }
+
+    // phase === 'break'
+    removeWarning();
     const el = ensureOverlay();
     const breakSeconds = T.BREAK_MINUTES * 60;
     const remaining = T.remainingSeconds(state, now);
@@ -105,10 +182,12 @@
     const weight = T.weightStageForHours(hours);
     const stretch = T.stretchFactor(remaining, breakSeconds);
 
-    el.style.setProperty("--cat-size", `${Math.round(weight.sizeFactor * 100)}vmin`);
+    el.style.setProperty(
+      "--cat-size",
+      `${Math.round(weight.sizeFactor * 100)}vmin`
+    );
     el.style.setProperty("--cat-stretch", stretch.toFixed(2));
 
-    // After the stretch window, switch on the breathing animation.
     const elapsed = breakSeconds - remaining;
     if (elapsed >= 13) el.classList.add("cat-comfortable");
     else el.classList.remove("cat-comfortable");
@@ -116,13 +195,12 @@
     el.querySelector("[data-timer]").textContent = T.formatMMSS(remaining);
     el.querySelector("[data-label]").textContent =
       `${weight.label} cat • ${hours.toFixed(1)}h streak`;
-    el.querySelector("[data-quote]").textContent = ART.phraseForSecond(remaining);
+    el.querySelector("[data-quote]").textContent =
+      ART.phraseForSecond(remaining);
     el.querySelector("[data-meta]").textContent =
       `next work block: ${T.clampWorkMinutes(settings.workMinutes)} min`;
   }
 
-  // Re-render at 1Hz off the most recent payload, so the timer counts
-  // down smoothly between background broadcasts.
   function startTick() {
     if (tickInterval) return;
     tickInterval = setInterval(() => {
@@ -137,8 +215,6 @@
     if (msg?.type === "CAT_STATE") render(msg);
   });
 
-  // On load, ask the worker for the current state so a freshly-opened tab
-  // mid-break renders the cat immediately.
   chrome.runtime
     .sendMessage({ type: "GET_STATE" })
     .then((resp) => {

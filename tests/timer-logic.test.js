@@ -145,6 +145,35 @@ test("advancePhase clamps absurd workMinutes (defends against popup tampering)",
   assert.eq(tooSmall.phaseEndsAt, T.MIN_WORK_MINUTES * 60 * 1000);
 });
 
+// ---- shouldWarn ----
+test("shouldWarn fires only in the final WARNING_SECONDS of work", () => {
+  const now = 1_000_000;
+  const justStarted = { phase: "work", phaseEndsAt: now + 25 * 60 * 1000 };
+  assert.eq(T.shouldWarn(justStarted, now), false);
+
+  const tightWindow = { phase: "work", phaseEndsAt: now + 30 * 1000 };
+  assert.eq(T.shouldWarn(tightWindow, now), true);
+
+  const oneSecondLeft = { phase: "work", phaseEndsAt: now + 999 };
+  assert.eq(T.shouldWarn(oneSecondLeft, now), true);
+
+  const justEnded = { phase: "work", phaseEndsAt: now };
+  assert.eq(T.shouldWarn(justEnded, now), false);
+});
+
+test("shouldWarn never fires during break or idle", () => {
+  const now = 1_000_000;
+  assert.eq(
+    T.shouldWarn({ phase: "break", phaseEndsAt: now + 15 * 1000 }, now),
+    false
+  );
+  assert.eq(T.shouldWarn({ phase: "idle", phaseEndsAt: 0 }, now), false);
+});
+
+test("WARNING_SECONDS is exposed and sane", () => {
+  assert.truthy(T.WARNING_SECONDS > 0 && T.WARNING_SECONDS <= 120);
+});
+
 // ---- Scenario: end-to-end weight gain across a 5h streak ----
 test("scenario: 5 hours of unbroken work lands in the eclipse stage", () => {
   const t0 = 0;

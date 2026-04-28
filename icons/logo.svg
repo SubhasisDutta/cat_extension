@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" aria-label="Fat Orange Cat logo">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="55%" r="60%">
+      <stop offset="0%" stop-color="#ffb86b"/>
+      <stop offset="70%" stop-color="#ef8b2a"/>
+      <stop offset="100%" stop-color="#c46410"/>
+    </radialGradient>
+  </defs>
+  <!-- ears -->
+  <polygon points="22,30 14,4 50,22" fill="#ef8b2a" stroke="#7a3a08" stroke-width="3"/>
+  <polygon points="106,30 114,4 78,22" fill="#ef8b2a" stroke="#7a3a08" stroke-width="3"/>
+  <polygon points="28,26 22,12 44,22" fill="#ffb1b1"/>
+  <polygon points="100,26 106,12 84,22" fill="#ffb1b1"/>
+  <!-- face -->
+  <circle cx="64" cy="68" r="50" fill="url(#g)" stroke="#7a3a08" stroke-width="4"/>
+  <!-- cheeks -->
+  <ellipse cx="40" cy="78" rx="14" ry="10" fill="#ffd6a8"/>
+  <ellipse cx="88" cy="78" rx="14" ry="10" fill="#ffd6a8"/>
+  <!-- annoyed eyes -->
+  <path d="M34,58 q10,-7 20,0" fill="none" stroke="#1f1f1f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M74,58 q10,-7 20,0" fill="none" stroke="#1f1f1f" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="44" cy="62" r="2" fill="#1f1f1f"/>
+  <circle cx="84" cy="62" r="2" fill="#1f1f1f"/>
+  <!-- nose -->
+  <path d="M59,76 l10,0 l-5,7 z" fill="#7a3a08"/>
+  <!-- mouth -->
+  <path d="M52,90 q12,6 24,0" fill="none" stroke="#1f1f1f" stroke-width="3" stroke-linecap="round"/>
+  <!-- whiskers -->
+  <path d="M22,82 l-12,-2 M22,90 l-12,2 M106,82 l12,-2 M106,90 l12,2" stroke="#1f1f1f" stroke-width="2" stroke-linecap="round"/>
+</svg>

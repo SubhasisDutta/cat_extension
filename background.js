@@ -91,7 +91,55 @@ async function onPhaseEnd() {
   const next = T.advancePhase(state, settings, now);
   await setState(next);
   await scheduleAlarms(next);
+  // If we just entered break, force-inject everywhere first so the
+  // broadcast that follows actually has someone to receive it.
+  if (next.phase === "break") {
+    await injectIntoAllTabs();
+  }
   await broadcast();
+}
+
+// Pages where Chrome refuses content-script injection. Skip silently.
+function canInject(url) {
+  if (!url) return false;
+  if (url.startsWith("chrome://")) return false;
+  if (url.startsWith("chrome-extension://")) return false;
+  if (url.startsWith("edge://")) return false;
+  if (url.startsWith("about:")) return false;
+  if (url.startsWith("view-source:")) return false;
+  if (url.startsWith("https://chrome.google.com/webstore")) return false;
+  if (url.startsWith("https://chromewebstore.google.com")) return false;
+  return /^(https?|file|ftp):/.test(url);
+}
+
+// Idempotent (content.js guards on window.__catExtensionLoaded__).
+async function ensureInjected(tabId) {
+  try {
+    await chrome.scripting.insertCSS({
+      target: { tabId },
+      files: ["overlay.css"],
+    });
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["lib/timer-logic.js", "cat.js", "content.js"],
+    });
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+// Force-inject the cat into every tab on every window. Called when a break
+// starts so tabs that were open before install (or reloaded before the
+// manifest content_script took effect) still get the overlay.
+async function injectIntoAllTabs() {
+  const tabs = await chrome.tabs.query({});
+  await Promise.all(
+    tabs.map(async (tab) => {
+      if (tab.id == null || !canInject(tab.url)) return;
+      await ensureInjected(tab.id);
+    })
+  );
 }
 
 async function broadcast() {
@@ -100,24 +148,40 @@ async function broadcast() {
   const payload = { type: "CAT_STATE", settings, state, now: Date.now() };
   // Send to popup (best-effort).
   chrome.runtime.sendMessage(payload).catch(() => {});
-  // Send to every tab.
+  // Send to every tab. If sendMessage fails (no listener), inject and retry.
   const tabs = await chrome.tabs.query({});
-  for (const tab of tabs) {
-    if (tab.id == null) continue;
-    chrome.tabs.sendMessage(tab.id, payload).catch(() => {});
-  }
+  await Promise.all(
+    tabs.map(async (tab) => {
+      if (tab.id == null) return;
+      try {
+        await chrome.tabs.sendMessage(tab.id, payload);
+      } catch (_e) {
+        if (state.phase !== "break") return; // only force-inject for breaks
+        if (!canInject(tab.url)) return;
+        const ok = await ensureInjected(tab.id);
+        if (ok) {
+          chrome.tabs.sendMessage(tab.id, payload).catch(() => {});
+        }
+      }
+    })
+  );
 }
 
-chrome.runtime.onInstalled.addListener(async () => {
+async function bootstrap() {
   const settings = await getSettings();
   await setSettings(settings);
+  const state = await getState();
+  // If we woke up mid-break, make sure every tab actually has the overlay.
+  if (state.phase === "break" && state.phaseEndsAt > Date.now()) {
+    await injectIntoAllTabs();
+    await broadcast();
+    return;
+  }
   if (settings.enabled) await startWork();
-});
+}
 
-chrome.runtime.onStartup.addListener(async () => {
-  const settings = await getSettings();
-  if (settings.enabled) await startWork();
-});
+chrome.runtime.onInstalled.addListener(bootstrap);
+chrome.runtime.onStartup.addListener(bootstrap);
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === ALARM_PHASE) {
@@ -165,6 +229,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         );
         await setState(next);
         await scheduleAlarms(next);
+        if (next.phase === "break") await injectIntoAllTabs();
         await broadcast();
         sendResponse({ ok: true });
         return;
