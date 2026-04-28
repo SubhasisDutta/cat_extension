@@ -1,0 +1,83 @@
+:root { color-scheme: light dark; }
+body {
+  width: 280px;
+  margin: 0;
+  padding: 14px 16px 12px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #1f160e;
+  color: #ffeccc;
+}
+header .title {
+  font-weight: 800;
+  letter-spacing: 2px;
+  font-size: 14px;
+  color: #ffb86b;
+}
+header .subtitle {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+.status {
+  margin: 14px 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 184, 107, 0.08);
+  border: 1px solid rgba(255, 184, 107, 0.25);
+}
+.phase {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.7;
+}
+.countdown {
+  font-size: 36px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+.meta { font-size: 11px; opacity: 0.6; margin-top: 4px; }
+
+.controls .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 13px;
+}
+.controls input[type="number"] {
+  width: 70px;
+  font-size: 13px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid #604024;
+  background: #2a1d11;
+  color: #ffeccc;
+}
+.controls .toggle input { transform: scale(1.2); }
+
+.controls button {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 0;
+  background: #ef8b2a;
+  color: #1a1006;
+  font-weight: 700;
+  cursor: pointer;
+}
+.controls button.ghost {
+  background: transparent;
+  color: #ffb86b;
+  border: 1px solid #604024;
+  margin-top: 10px;
+}
+
+footer {
+  margin-top: 12px;
+  font-size: 10px;
+  opacity: 0.45;
+  text-align: center;
+}

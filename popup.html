@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <div class="title">FAT ORANGE CAT</div>
+      <div class="subtitle">he is unbothered.</div>
+    </header>
+
+    <section class="status">
+      <div class="phase" data-phase>—</div>
+      <div class="countdown" data-countdown>--:--</div>
+      <div class="meta" data-meta></div>
+    </section>
+
+    <section class="controls">
+      <label class="row">
+        <span>Work block (minutes)</span>
+        <input type="number" min="1" max="120" step="1" data-work-input />
+      </label>
+      <button data-save>Save</button>
+
+      <label class="row toggle">
+        <span>Cat is on duty</span>
+        <input type="checkbox" data-enabled />
+      </label>
+
+      <button class="ghost" data-summon>Summon him now</button>
+    </section>
+
+    <footer>
+      <div>5-minute break is fixed (it's pomodoro, not a negotiation).</div>
+    </footer>
+
+    <script src="lib/timer-logic.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

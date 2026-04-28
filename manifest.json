@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Fat Orange Cat",
+  "version": "1.0.0",
+  "description": "An annoyed, entitled cat enforces your pomodoro breaks. He gets fatter the longer you ignore him.",
+  "permissions": ["storage", "alarms", "tabs", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Fat Orange Cat"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["lib/timer-logic.js", "cat.js", "content.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["overlay.css", "cat.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
