@@ -41,6 +41,13 @@ an extension.
 6. The "Fat Orange Cat" extension appears in your list. Pin it to the toolbar
    for easy access (puzzle-piece icon → pin).
 
+> **Updating after a code change**: changes to [background.js](background.js)
+> or [manifest.json](manifest.json) require a reload — open
+> `chrome://extensions` and click the circular refresh icon on the Fat
+> Orange Cat card. Changes to [content.js](content.js) /
+> [overlay.css](overlay.css) require a reload *and* refreshing any open
+> tabs (or just letting the next break force-inject the updated script).
+
 ### 2. First-run behavior
 
 - The extension auto-starts a 25-minute work block as soon as it's loaded.
@@ -108,6 +115,12 @@ when you complete a 5-minute break — disabling the extension does not count.
 node tests/run-tests.js
 ```
 
+Expect `28 passed, 0 failed`. Covers timer math, weight progression, the
+stretch animation curve, the phase state machine (idle → work → break → work),
+input clamping, the 30-second pre-break warning window, and the end-to-end
+scenarios from the spec (5h streak → eclipse stage, break completion as the
+only weight reset path).
+
 ## Regenerating the logo
 
 The toolbar icon and popup logo come from [icons/](icons/). The source of
@@ -121,11 +134,6 @@ node scripts/build-icons.js
 If you change the SVG, mirror the change in [scripts/build-icons.js](scripts/build-icons.js)
 and re-run — the script does not parse the SVG, it draws the same shapes
 in code so we don't pull in a build pipeline.
-
-Covers timer math, weight progression, the stretch animation curve, the
-phase state machine (idle → work → break → work), input clamping, and the
-end-to-end scenarios from the spec (5h streak → eclipse stage, break
-completion as the only weight reset path).
 
 ## Files
 
@@ -146,6 +154,14 @@ completion as the only weight reset path).
 
 - **Cat doesn't appear**: open the popup — is "Cat is on duty" on? Is a work
   block actively counting down? Try **Summon him now**.
+- **No 30-second warning toast**: the warning only fires while a work block
+  is actively counting down (not in idle, not during a break, not while
+  disabled). Set the work block to 1 minute in the popup and wait — the
+  toast appears at 0:30 remaining.
+- **Page is still scrollable during break**: shouldn't happen — the overlay
+  locks `document.documentElement.style.overflow` to `hidden`. If you see
+  this, open DevTools and check whether a host-page script is overwriting
+  the overflow property on a tighter timer than ours; report the URL.
 - **Cat appears on most sites but not one specific site**: a few pages
   (`chrome://`, `chrome-extension://`, the Chrome Web Store, view-source,
   some PDFs) block content scripts. This is enforced by Chrome and cannot

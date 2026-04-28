@@ -84,6 +84,47 @@ you tune the curve, update the tests in the same change.
 by 4:47 (a 13-second window), then stays at 1.6. After 4:47 the overlay adds
 class `cat-comfortable` which switches on a slow breathing animation.
 
+## Pre-break warning
+
+`shouldWarn(state, nowMs)` returns true while `phase === "work"` and
+`remainingSeconds <= WARNING_SECONDS` (30s). [content.js](content.js) renders
+a small bottom-right pill `#cat-extension-warning` whenever this is true —
+it's `pointer-events: none` and never blocks the page; it only exists so the
+user can save their work before the cat lands.
+
+## Lockdown during break
+
+The overlay alone is not enough — a determined user could still scroll, pinch,
+right-click, or hit Esc. [content.js](content.js) installs the following
+during `phase === "break"` and tears them down on exit:
+
+- `lockScroll()` sets `document.documentElement.style.overflow = "hidden"`
+  (and the same on `body`) and remembers the prior values for restore.
+- A capture-phase `keydown` handler swallows Esc, Ctrl-W / Cmd-W, F11.
+- A capture-phase `wheel` / `touchmove` / `contextmenu` handler swallows
+  events whose target is *outside* the overlay subtree.
+- A `MutationObserver` on `documentElement` re-attaches the overlay if a
+  page script tries to remove it.
+
+If you add new interactive elements during a break, they must live inside
+`#cat-extension-overlay` — the block handler explicitly allows events whose
+target is contained by the overlay.
+
+## Cross-tab coverage
+
+`injectIntoAllTabs()` in [background.js](background.js) is what makes the cat
+appear on tabs that were already open before install / reload. The MV3
+content_scripts entry only fires on subsequent loads, so we run
+`chrome.scripting.executeScript` against every eligible tab whenever a break
+begins or the worker wakes up mid-break. Targets are filtered through
+`canInject(url)` — `chrome://`, `chrome-extension://`, the Chrome Web Store,
+`view-source://`, `about:` are all rejected because Chrome refuses script
+injection on those.
+
+`broadcast()` also retry-injects: if `chrome.tabs.sendMessage` to a tab
+fails *during a break* and the URL passes `canInject`, it injects and resends
+once. This is the safety net for tabs that opened during the break.
+
 ## Conventions
 
 - **Pure logic in `lib/`, side effects in the SW / content / popup.** If you
@@ -98,7 +139,7 @@ class `cat-comfortable` which switches on a slow breathing animation.
 
 ## Common tasks
 
-- **Run tests**: `node tests/run-tests.js` from repo root. All 25 must pass.
+- **Run tests**: `node tests/run-tests.js` from repo root. All 28 must pass.
 - **Add a phase / weight test**: append to
   [tests/timer-logic.test.js](tests/timer-logic.test.js). Use
   `assert.eq` / `assert.approx`. No describe / it blocks — just `test(name, fn)`.
