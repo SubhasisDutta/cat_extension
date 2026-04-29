@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Fat Orange Cat",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "An annoyed, entitled cat enforces your pomodoro breaks. He gets fatter the longer you ignore him.",
   "permissions": ["storage", "alarms", "tabs", "scripting"],
   "host_permissions": ["<all_urls>"],

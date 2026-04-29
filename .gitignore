@@ -1,0 +1,12 @@
+# macOS junk
+.DS_Store
+
+# release artifacts (regenerated on demand by scripts/build-release.sh)
+dist/
+
+# editor scratch
+*.swp
+.vscode/
+.idea/
+
+# nothing else — this repo is intentionally zero-deps

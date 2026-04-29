@@ -121,6 +121,72 @@ input clamping, the 30-second pre-break warning window, and the end-to-end
 scenarios from the spec (5h streak → eclipse stage, break completion as the
 only weight reset path).
 
+## Releasing to the Chrome Web Store
+
+Manual, on-demand. No CI, no auto-publish — you decide when to ship.
+
+### One-time setup
+
+1. Have a [Chrome Web Store developer account](https://chrome.google.com/webstore/devconsole/)
+   (one-time $5 fee).
+2. Create the listing once: name, description, screenshots, category, etc.
+   You'll re-use the same listing for every subsequent version.
+
+### Each release
+
+1. **Bump the version** in [manifest.json](manifest.json) — Chrome rejects
+   uploads that re-use a version already in the store. Use semver:
+   - patch for tiny fixes (1.0.0 → 1.0.1),
+   - minor for new behavior (1.0.1 → 1.1.0),
+   - major for breaking UX changes (1.1.0 → 2.0.0).
+2. **Smoke-test locally**: load the unpacked repo at `chrome://extensions`,
+   click "Summon him now", confirm the overlay still works.
+3. **Build the zip**:
+
+   ```bash
+   ./scripts/build-release.sh
+   ```
+
+   This runs the full test suite, regenerates the PNG icons, stages only
+   runtime files, and writes
+   `dist/fat-orange-cat-v<version>.zip`. Anything not on the explicit
+   allowlist in the script (tests, docs, `scripts/`, `.git`, `.DS_Store`,
+   the source SVG) is excluded.
+4. **Sanity-check the contents**:
+
+   ```bash
+   unzip -l dist/fat-orange-cat-v<version>.zip
+   ```
+
+   You should see 13 files: `manifest.json`, `background.js`,
+   `content.js`, `cat.js`, `overlay.css`, `popup.{html,js,css}`,
+   `lib/timer-logic.js`, and four `icons/icon-*.png`. Nothing else.
+5. **Upload**:
+   - Open [the developer console](https://chrome.google.com/webstore/devconsole/).
+   - Select "Fat Orange Cat" → **Package** → **Upload new package**.
+   - Drag the zip onto the upload area.
+   - Fill in the "What's new in this version" field.
+   - Click **Submit for review**.
+6. **Tag the release in git**:
+
+   ```bash
+   git tag v<version>
+   git push origin v<version>
+   ```
+
+### Script flags
+
+| Flag | When to use |
+| --- | --- |
+| `--skip-tests` | You've just run them yourself in this shell. Not recommended for actual releases. |
+| `--skip-icons` | You haven't touched [icons/logo.svg](icons/logo.svg) or [scripts/build-icons.js](scripts/build-icons.js) since the last build. |
+
+### Why the zip is so small (~20 KB)
+
+The store only needs runtime code. Tests, dev scripts, source SVGs,
+markdown docs, and git metadata are stripped. Smaller upload =
+faster review = less surface area for reviewers to ask about.
+
 ## Regenerating the logo
 
 The toolbar icon and popup logo come from [icons/](icons/). The source of
