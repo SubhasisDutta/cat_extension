@@ -4,6 +4,9 @@ A Chrome extension that enforces pomodoro breaks via an annoyed, entitled,
 unbothered orange cat. Every work block (default 25 min) the cat appears for
 5 minutes and refuses to leave. Skip your breaks and he gets fatter.
 
+## Chrome Extension
+[Chrome Web Store Install](https://tinyurl.com/fat-orange-cat-timer)
+
 ## What he does
 
 - Warns you 30 seconds before he arrives (a small "FAT CAT INCOMING" toast in
