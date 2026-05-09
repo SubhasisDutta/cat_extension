@@ -1,0 +1,19 @@
+# Android Studio / Gradle
+*.iml
+.gradle/
+.idea/
+build/
+local.properties
+captures/
+.cxx/
+
+# Generated wrapper jar (run `gradle wrapper` to regenerate)
+gradle/wrapper/gradle-wrapper.jar
+
+# Keystores must never be committed
+*.jks
+*.keystore
+release/
+
+# OS
+.DS_Store
