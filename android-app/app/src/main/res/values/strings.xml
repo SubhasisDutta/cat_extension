@@ -1,4 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Fat Orange Cat</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Fat Orange Cat</string>
+    <string name="work_block_label">Work block (minutes)</string>
+    <string name="work_block_range">Range: 1–120</string>
+    <string name="enabled_label">Cat is on duty</string>
+    <string name="summon_now">Summon him now</string>
+    <string name="save">Save</string>
+    <string name="streak_label">Continuous-work streak</string>
+    <string name="weight_label">Weight</string>
+    <string name="phase_label">Phase</string>
+    <string name="time_remaining">Time remaining</string>
+
+    <!-- Permissions -->
+    <string name="overlay_permission_required">Display over other apps permission required</string>
+    <string name="overlay_permission_explainer">Without this, the cat cannot draw over other apps during a break. He will still appear inside this app, but you can dismiss him by switching apps — defeating the point.</string>
+    <string name="grant_overlay_permission">Grant overlay permission</string>
+    <string name="exact_alarm_permission_required">Exact alarms permission required</string>
+    <string name="grant_exact_alarm_permission">Grant exact alarms permission</string>
+
+    <!-- Notification channel + content -->
+    <string name="timer_channel_name">Pomodoro timer</string>
+    <string name="timer_channel_description">Keeps the timer running in the background.</string>
+    <string name="warning_channel_name">Pre-break warnings</string>
+    <string name="warning_channel_description">A 30-second heads-up before the cat arrives.</string>
+    <string name="timer_notification_idle">Timer is off duty</string>
+    <string name="timer_notification_work">Working — cat arrives in %1$s</string>
+    <string name="timer_notification_break">Break — cat leaves in %1$s</string>
+    <string name="warning_notification_title">FAT CAT INCOMING</string>
+    <string name="warning_notification_body">Save your work. He arrives in %1$s.</string>
+
+    <!-- Phase labels -->
+    <string name="phase_idle">Off duty</string>
+    <string name="phase_work">Working</string>
+    <string name="phase_break">Break</string>
 </resources>

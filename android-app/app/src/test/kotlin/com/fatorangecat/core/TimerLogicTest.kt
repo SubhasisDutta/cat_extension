@@ -268,6 +268,48 @@ class TimerLogicTest {
     }
 
     @Test
+    fun scenario_forceBreakStartsBreakAndPreservesStreak() {
+        // Mirrors the FORCE_BREAK / "Summon him now" code path in
+        // background.js / TimerService.handleForceBreak: pretend we're
+        // in WORK and advance.
+        val streakStart = 1_000_000L
+        val now = streakStart + 7L * 60L * 1000L // 7 minutes into the work block
+        val current = TimerState(
+            phase = Phase.WORK,
+            phaseEndsAt = streakStart + 25L * 60L * 1000L,
+            workStreakStartedAt = streakStart,
+        )
+        val next = TimerLogic.advancePhase(
+            current.copy(phase = Phase.WORK),
+            Settings(workMinutes = 25),
+            now,
+        )
+        assertEquals(Phase.BREAK, next.phase)
+        assertEquals(now + TimerLogic.BREAK_MINUTES * 60L * 1000L, next.phaseEndsAt)
+        assertEquals(
+            "force-break must NOT reset the streak — only completing the break does",
+            streakStart,
+            next.workStreakStartedAt,
+        )
+    }
+
+    @Test
+    fun scenario_forceBreakFromIdleInitializesStreakToNow() {
+        val now = 5_000_000L
+        val next = TimerLogic.advancePhase(
+            TimerState(phase = Phase.IDLE).copy(phase = Phase.WORK),
+            Settings(workMinutes = 25),
+            now,
+        )
+        assertEquals(Phase.BREAK, next.phase)
+        assertEquals(
+            "force-break from idle must seed the streak so weight starts at 0",
+            now,
+            next.workStreakStartedAt,
+        )
+    }
+
+    @Test
     fun scenario_breakCompletionIsTheOnlyPathToResetWeight() {
         val t0 = 0L
         val streakStart = t0

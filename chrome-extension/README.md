@@ -118,11 +118,12 @@ when you complete a 5-minute break — disabling the extension does not count.
 node tests/run-tests.js
 ```
 
-Expect `28 passed, 0 failed`. Covers timer math, weight progression, the
+Expect `30 passed, 0 failed`. Covers timer math, weight progression, the
 stretch animation curve, the phase state machine (idle → work → break → work),
-input clamping, the 30-second pre-break warning window, and the end-to-end
-scenarios from the spec (5h streak → eclipse stage, break completion as the
-only weight reset path).
+input clamping, the 30-second pre-break warning window, force-break
+("Summon him now") streak preservation, and the end-to-end scenarios from
+the spec (5h streak → eclipse stage, break completion as the only weight
+reset path).
 
 ## Releasing to the Chrome Web Store
 

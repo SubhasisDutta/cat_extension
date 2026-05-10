@@ -195,6 +195,46 @@ test("scenario: countdown hits 0:00 exactly at phaseEndsAt", () => {
   assert.eq(T.formatMMSS(T.remainingSeconds(state, phaseEndsAt - 1000)), "0:01");
 });
 
+// ---- Scenario: force-break ("Summon him now") preserves streak ----
+test("scenario: force-break starts break and preserves streak", () => {
+  // Mirrors the FORCE_BREAK code path in background.js: pretend we're in
+  // work and advance. Streak must NOT reset — only completing the break does.
+  const streakStart = 1_000_000;
+  const now = streakStart + 7 * 60 * 1000; // 7 minutes into the work block
+  const current = {
+    phase: "work",
+    phaseEndsAt: streakStart + 25 * 60 * 1000,
+    workStreakStartedAt: streakStart,
+  };
+  const next = T.advancePhase(
+    { ...current, phase: "work" },
+    { workMinutes: 25 },
+    now
+  );
+  assert.eq(next.phase, "break");
+  assert.eq(next.phaseEndsAt, now + T.BREAK_MINUTES * 60 * 1000);
+  assert.eq(
+    next.workStreakStartedAt,
+    streakStart,
+    "force-break must NOT reset the streak"
+  );
+});
+
+test("scenario: force-break from idle initializes streak to now", () => {
+  const now = 5_000_000;
+  const next = T.advancePhase(
+    { phase: "work" },
+    { workMinutes: 25 },
+    now
+  );
+  assert.eq(next.phase, "break");
+  assert.eq(
+    next.workStreakStartedAt,
+    now,
+    "force-break from idle must seed the streak"
+  );
+});
+
 // ---- Scenario: the only way to shrink the cat is to take the break ----
 test("scenario: break completion is the only path to reset weight", () => {
   const t0 = 0;
