@@ -9,18 +9,21 @@ cat, and the same personality:
 
 | Project | Status | Where |
 | --- | --- | --- |
-| Chrome MV3 extension | shipped — covers every browser tab on every browser window | [chrome-extension/](chrome-extension/) |
-| Android app | in progress — covers every app on the device via a system overlay | [android-app/](android-app/) |
+| Chrome MV3 extension | shipped on the Chrome Web Store — covers every browser tab on every browser window | [chrome-extension/](chrome-extension/) |
+| Android app | feature-complete; ready for Play Store submission — covers every app on the device via a system overlay | [android-app/](android-app/) |
 
 Each subdirectory is a complete project with its own README, build scripts,
 and tests. Pick one:
 
 - [chrome-extension/README.md](chrome-extension/README.md) — install, configure,
   and release the Chrome extension. Tested with `node tests/run-tests.js` from
-  inside `chrome-extension/`.
+  inside `chrome-extension/`. Release zip via `scripts/build-release.sh`.
 - [android-app/README.md](android-app/README.md) — build the Android app, run
-  unit tests, and (eventually) ship to the Play Store. Tested with
-  `./gradlew test` from inside `android-app/`.
+  unit tests, and ship to the Play Store. Tested with `./gradlew test` from
+  inside `android-app/`. Signed AAB via `scripts/build-release.sh`. Keystore
+  walkthrough in [android-app/SIGNING.md](android-app/SIGNING.md); Play
+  Console listing copy in [android-app/STORE_LISTING.md](android-app/STORE_LISTING.md);
+  privacy policy in [android-app/PRIVACY.md](android-app/PRIVACY.md).
 
 ## Why two projects, not one
 

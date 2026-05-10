@@ -212,6 +212,43 @@ Notes go in the PR description.
   `buildCatWebView` in `CatOverlayService.kt`. The cat itself is rendered
   by a WebView loading `CatArt.svgMarkup()` — don't redraw it natively
   unless you also update the extension to match.
+- **Cut a Play Store release**:
+  ```bash
+  # bump versionCode + versionName in app/build.gradle.kts, then:
+  cd android-app
+  ./scripts/build-release.sh
+  ```
+  Produces a signed AAB at `dist/fat-orange-cat-vX.Y.Z-N.aab` ready for
+  Play Console upload. Full walkthrough (keystore generation, Play App
+  Signing enrollment, common errors) in [SIGNING.md](SIGNING.md). The
+  Play Console listing copy + permission disclosures are in
+  [STORE_LISTING.md](STORE_LISTING.md). Privacy policy at
+  [PRIVACY.md](PRIVACY.md).
+- **Update the listing**: edit [STORE_LISTING.md](STORE_LISTING.md)
+  (titles, descriptions, screenshots checklist, permission justifications)
+  and re-paste into Play Console. The doc is the source of truth so the
+  next release can re-derive the listing without reverse-engineering it.
+
+## Play Store policy reminders
+
+The app uses three permissions that have specific Play policies. Don't
+break them without updating the disclosures:
+
+- `SYSTEM_ALERT_WINDOW` — Play allows this for our use case (timer
+  overlay) but you must show a pre-disclosure before requesting. The
+  `MainActivity` permission card is the disclosure; don't remove it.
+- `SCHEDULE_EXACT_ALARM` — Play requires a justification statement
+  in the Console. The text is in [STORE_LISTING.md](STORE_LISTING.md)
+  under "Permissions disclosures." If you ever stop using exact alarms,
+  remove the `<uses-permission>` *and* the policy form entry.
+- `FOREGROUND_SERVICE_SPECIAL_USE` — Play requires the manifest
+  `<property>` declaring the subtype, and a Console disclosure form
+  explaining why. Both are wired in PR #2; subtype is
+  `pomodoro_break_overlay_timer`.
+
+If you add a permission, write the new disclosure in
+[STORE_LISTING.md](STORE_LISTING.md) and the `<uses-permission>` tag in
+the manifest in the same change.
 
 ## What not to do
 

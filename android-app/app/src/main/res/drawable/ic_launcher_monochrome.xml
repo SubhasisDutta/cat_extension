@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Themed-icon variant. Single-color silhouette of the same cat. -->
+<!-- Themed-icon variant. Single-color silhouette of the same cat.
+     Used by Android 13+ themed-icon mode where the launcher tints the
+     foreground with the user's monochrome theme. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -7,16 +9,26 @@
     android:viewportHeight="108"
     android:tint="?attr/colorControlNormal">
 
+    <!-- Body -->
     <path
         android:fillColor="#000000"
-        android:pathData="M54,72 m-22,0 a22,16 0 1,0 44,0 a22,16 0 1,0 -44,0" />
+        android:pathData="M54,74 m-26,0 a26,18 0 1,0 52,0 a26,18 0 1,0 -52,0" />
+    <!-- Head -->
     <path
         android:fillColor="#000000"
-        android:pathData="M54,46 m-16,0 a16,14 0 1,0 32,0 a16,14 0 1,0 -32,0" />
+        android:pathData="M54,42 m-19,0 a19,16 0 1,0 38,0 a19,16 0 1,0 -38,0" />
+    <!-- Ears -->
     <path
         android:fillColor="#000000"
-        android:pathData="M42,36 L36,28 L48,34 Z" />
+        android:pathData="M40,32 L33,20 L48,28 Z" />
     <path
         android:fillColor="#000000"
-        android:pathData="M66,36 L72,28 L60,34 Z" />
+        android:pathData="M68,32 L75,20 L60,28 Z" />
+    <!-- Front paws so the silhouette stays cat-shaped at small sizes -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M40,90 m-5,0 a5,3 0 1,0 10,0 a5,3 0 1,0 -10,0" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M68,90 m-5,0 a5,3 0 1,0 10,0 a5,3 0 1,0 -10,0" />
 </vector>

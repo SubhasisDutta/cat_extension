@@ -10,10 +10,18 @@ captures/
 # Generated wrapper jar (run `gradle wrapper` to regenerate)
 gradle/wrapper/gradle-wrapper.jar
 
-# Keystores must never be committed
+# Keystores and signing material must never be committed.
+# `keystore.properties.template` IS committed; the real one is not.
 *.jks
 *.keystore
+keystore.properties
+keystores/
 release/
+
+# AAB / APK release artifacts (regenerated on demand by scripts/build-release.sh)
+dist/
+*.aab
+*.apk
 
 # OS
 .DS_Store

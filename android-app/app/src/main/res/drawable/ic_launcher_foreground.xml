@@ -1,60 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Simplified cat silhouette for the launcher icon. The full SVG is too
-     detailed for an adaptive icon foreground; a chunky shape reads better
-     at small sizes. PR #3 will iterate this if it doesn't pass Play Store
-     review. The 108dp canvas is the standard adaptive-icon size; the
-     safe zone is 72dp centered, so all paths sit inside that. -->
+<!-- Adaptive-icon foreground. 108dp canvas, 72dp safe zone centered.
+     A simplified, chunky version of the cat in CatArt.svgMarkup() — the
+     full SVG is too detailed for an icon at small sizes. Kept readable
+     at 48dp. Same palette as the SVG; same annoyed half-lid eyes. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- body -->
-    <path
-        android:fillColor="#c46410"
-        android:strokeColor="#7a3a08"
-        android:strokeWidth="2"
-        android:pathData="M54,72 m-22,0 a22,16 0 1,0 44,0 a22,16 0 1,0 -44,0" />
-
-    <!-- head -->
+    <!-- Body (big oval, bottom-heavy) -->
     <path
         android:fillColor="#ef8b2a"
         android:strokeColor="#7a3a08"
-        android:strokeWidth="2"
-        android:pathData="M54,46 m-16,0 a16,14 0 1,0 32,0 a16,14 0 1,0 -32,0" />
+        android:strokeWidth="2.5"
+        android:pathData="M54,74 m-26,0 a26,18 0 1,0 52,0 a26,18 0 1,0 -52,0" />
 
-    <!-- left ear -->
-    <path
-        android:fillColor="#ef8b2a"
-        android:strokeColor="#7a3a08"
-        android:strokeWidth="2"
-        android:pathData="M42,36 L36,28 L48,34 Z" />
-
-    <!-- right ear -->
-    <path
-        android:fillColor="#ef8b2a"
-        android:strokeColor="#7a3a08"
-        android:strokeWidth="2"
-        android:pathData="M66,36 L72,28 L60,34 Z" />
-
-    <!-- left eye (annoyed half-lid) -->
-    <path
-        android:fillColor="#1f1f1f"
-        android:pathData="M44,46 a3,1.5 0 0,0 6,0 z" />
-
-    <!-- right eye -->
-    <path
-        android:fillColor="#1f1f1f"
-        android:pathData="M58,46 a3,1.5 0 0,0 6,0 z" />
-
-    <!-- nose -->
-    <path
-        android:fillColor="#7a3a08"
-        android:pathData="M52,52 L56,52 L54,55 Z" />
-
-    <!-- belly highlight -->
+    <!-- Belly highlight -->
     <path
         android:fillColor="#ffe6c4"
-        android:pathData="M54,76 m-12,0 a12,8 0 1,0 24,0 a12,8 0 1,0 -24,0" />
+        android:pathData="M54,80 m-16,0 a16,9 0 1,0 32,0 a16,9 0 1,0 -32,0" />
+
+    <!-- Front paws -->
+    <path
+        android:fillColor="#ef8b2a"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2"
+        android:pathData="M40,90 m-5,0 a5,3 0 1,0 10,0 a5,3 0 1,0 -10,0" />
+    <path
+        android:fillColor="#ef8b2a"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2"
+        android:pathData="M68,90 m-5,0 a5,3 0 1,0 10,0 a5,3 0 1,0 -10,0" />
+
+    <!-- Head (centered above body) -->
+    <path
+        android:fillColor="#ffb86b"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2.5"
+        android:pathData="M54,42 m-19,0 a19,16 0 1,0 38,0 a19,16 0 1,0 -38,0" />
+
+    <!-- Left ear -->
+    <path
+        android:fillColor="#ef8b2a"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2"
+        android:pathData="M40,32 L33,20 L48,28 Z" />
+    <!-- Right ear -->
+    <path
+        android:fillColor="#ef8b2a"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2"
+        android:pathData="M68,32 L75,20 L60,28 Z" />
+
+    <!-- Inner ear pink -->
+    <path
+        android:fillColor="#ffb1b1"
+        android:pathData="M42,30 L37,23 L46,27 Z" />
+    <path
+        android:fillColor="#ffb1b1"
+        android:pathData="M66,30 L71,23 L62,27 Z" />
+
+    <!-- Cheeks -->
+    <path
+        android:fillColor="#ffd6a8"
+        android:pathData="M45,46 m-5,0 a5,3 0 1,0 10,0 a5,3 0 1,0 -10,0" />
+    <path
+        android:fillColor="#ffd6a8"
+        android:pathData="M63,46 m-5,0 a5,3 0 1,0 10,0 a5,3 0 1,0 -10,0" />
+
+    <!-- Annoyed half-lid eyes (curved arcs) -->
+    <path
+        android:fillColor="#1f1f1f"
+        android:pathData="M42,40 q3,-3 6,0 q-3,2 -6,0 z" />
+    <path
+        android:fillColor="#1f1f1f"
+        android:pathData="M60,40 q3,-3 6,0 q-3,2 -6,0 z" />
+
+    <!-- Nose (small triangle) -->
+    <path
+        android:fillColor="#7a3a08"
+        android:pathData="M52,49 L56,49 L54,52 Z" />
+
+    <!-- Mouth (flat, unimpressed) -->
+    <path
+        android:strokeColor="#1f1f1f"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M50,55 q4,2 8,0" />
 </vector>
