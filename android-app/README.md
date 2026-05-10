@@ -4,10 +4,12 @@ A pomodoro app that draws a fat orange cat over **every app** during a break.
 Same spec, same cat, same personality as the Chrome extension — but with
 real OS-level coverage instead of just browser tabs.
 
-> **Status: PR #2 of 3 landed.** The app is now feature-complete for the
-> first end-to-end run: settings UI, foreground timer service, exact-alarm
-> phase boundaries, system-overlay during breaks, the byte-identical SVG
-> cat. PR #3 lands Play Store assets, signing config, and listing copy.
+> **Status: feature-complete; ready for Play Store submission.**
+> All three planned PRs have landed. The app builds a signed AAB via
+> [scripts/build-release.sh](scripts/build-release.sh); the listing copy
+> is in [STORE_LISTING.md](STORE_LISTING.md); the privacy policy is at
+> [PRIVACY.md](PRIVACY.md); the keystore + release walkthrough is at
+> [SIGNING.md](SIGNING.md).
 
 ## Layout
 
@@ -17,6 +19,12 @@ android-app/
 ├── build.gradle.kts            # root build script
 ├── gradle.properties
 ├── gradle/wrapper/             # wrapper config (jar regenerated on first sync)
+├── keystore.properties.template  # copy to keystore.properties (gitignored)
+├── scripts/
+│   └── build-release.sh        # tests + signed AAB → dist/
+├── PRIVACY.md                  # privacy policy (linked from listing)
+├── SIGNING.md                  # keystore generation + release walkthrough
+├── STORE_LISTING.md            # Play Console copy + asset checklist
 └── app/
     ├── build.gradle.kts        # app module — Compose + DataStore + Lifecycle
     ├── proguard-rules.pro
@@ -137,15 +145,57 @@ The cat is owned by the OS window manager, not by an Activity. So:
   The spec says he refuses to leave, not that he prevents you from yanking
   the OS-level switch. Don't yank it.
 
+## Releasing to the Play Store
+
+Manual, on-demand. No CI, no auto-publish — you decide when to ship.
+
+### One-time setup
+
+See [SIGNING.md](SIGNING.md) for the full walkthrough — keystore
+generation with `keytool`, copying `keystore.properties.template`,
+enrolling in Play App Signing.
+
+### Each release
+
+1. **Bump versions** in [app/build.gradle.kts](app/build.gradle.kts):
+   - `versionCode` (integer, must increase) — required by Play.
+   - `versionName` (semver) — what users see.
+2. **Build the AAB**:
+   ```bash
+   cd android-app
+   ./scripts/build-release.sh
+   ```
+   The script runs unit tests, builds a signed AAB, and writes it to
+   `dist/fat-orange-cat-vX.Y.Z-N.aab`. Pass `--apk` if you also want a
+   sideloadable APK for local install.
+3. **Upload** to Play Console → Production → Create new release.
+4. **Tag** the release in git: `git tag vX.Y.Z && git push origin --tags`.
+
+The full Play Console listing copy (titles, descriptions, permission
+disclosures, content rating answers, data-safety form) is in
+[STORE_LISTING.md](STORE_LISTING.md). Privacy policy at
+[PRIVACY.md](PRIVACY.md) — link to its raw GitHub URL when Play Console
+asks.
+
 ## Roadmap
 
 - **PR #1**: repo split + Kotlin port of pure logic + JUnit tests. ✅
-- **PR #2** (this one): `MainActivity` (Compose settings UI), `TimerService`
+- **PR #2**: `MainActivity` (Compose settings UI), `TimerService`
   (foreground), `CatOverlayService` (`SYSTEM_ALERT_WINDOW`), `DataStore`
   persistence, alarm + boot receivers, adaptive launcher icon. ✅
-- **PR #3**: Play-Store-ready icons (foreground / monochrome / round
-  refinement), signing config, Play Console listing draft, screenshots,
-  privacy policy, store-ready release build script.
+- **PR #3**: signing config + keystore.properties wiring, Play-Store
+  release build script, polished launcher icon, ProGuard tuning,
+  PRIVACY.md, STORE_LISTING.md, SIGNING.md. ✅
+
+After PR #3 the only remaining work to actually publish is:
+
+- Generate the keystore on your machine (one-time).
+- Take real device screenshots (5 phone shots per
+  [STORE_LISTING.md](STORE_LISTING.md)).
+- Render a 1024×500 feature graphic.
+- Walk through the Play Console listing form using the copy in
+  [STORE_LISTING.md](STORE_LISTING.md).
+- Click submit.
 
 ## Files to read first
 
