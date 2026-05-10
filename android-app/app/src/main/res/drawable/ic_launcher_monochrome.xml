@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon variant. Single-color silhouette of the same cat. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
+    android:tint="?attr/colorControlNormal">
+
+    <path
+        android:fillColor="#000000"
+        android:pathData="M54,72 m-22,0 a22,16 0 1,0 44,0 a22,16 0 1,0 -44,0" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M54,46 m-16,0 a16,14 0 1,0 32,0 a16,14 0 1,0 -32,0" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M42,36 L36,28 L48,34 Z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M66,36 L72,28 L60,34 Z" />
+</vector>

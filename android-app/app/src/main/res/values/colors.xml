@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors the SVG palette in CatArt.kt / cat.js. -->
+    <color name="cat_orange_light">#ffb86b</color>
+    <color name="cat_orange">#ef8b2a</color>
+    <color name="cat_orange_dark">#c46410</color>
+    <color name="cat_brown">#7a3a08</color>
+    <color name="cat_belly">#ffe6c4</color>
+    <color name="cat_pink">#ffb1b1</color>
+    <color name="overlay_scrim">#cc000000</color>
+    <color name="ink">#1f1f1f</color>
+    <color name="paper">#fff8ef</color>
+</resources>

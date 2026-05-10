@@ -20,14 +20,53 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
+    <!-- Wake the device long enough to hand off to the foreground service. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
-        android:label="Fat Orange Cat"
+        android:name=".CatApplication"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:allowBackup="false"
         android:supportsRtl="true"
+        android:theme="@style/Theme.FatOrangeCat"
         tools:targetApi="35">
 
-        <!-- MainActivity (Compose settings UI) lands in PR #2.
-             Manifest is intentionally empty until then so the project still
-             builds as an installable APK skeleton. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FatOrangeCat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".service.TimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="pomodoro_break_overlay_timer" />
+        </service>
+
+        <service
+            android:name=".service.CatOverlayService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".service.PhaseAlarmReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".service.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

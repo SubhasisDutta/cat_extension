@@ -22,7 +22,7 @@ about *how to operate* in the repo, not *what's in it*.
    ```bash
    node tests/run-tests.js
    ```
-   Expect `28 passed, 0 failed` on a clean checkout. If the count drops or any
+   Expect `30 passed, 0 failed` on a clean checkout. If the count drops or any
    test fails, fix it before proposing a commit.
 3. **Add a test for any logic change** in [lib/timer-logic.js](lib/timer-logic.js)
    or [cat.js](cat.js). The test runner picks up any sibling `*.test.js`

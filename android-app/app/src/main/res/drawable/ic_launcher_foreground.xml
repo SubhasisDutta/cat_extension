@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simplified cat silhouette for the launcher icon. The full SVG is too
+     detailed for an adaptive icon foreground; a chunky shape reads better
+     at small sizes. PR #3 will iterate this if it doesn't pass Play Store
+     review. The 108dp canvas is the standard adaptive-icon size; the
+     safe zone is 72dp centered, so all paths sit inside that. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- body -->
+    <path
+        android:fillColor="#c46410"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2"
+        android:pathData="M54,72 m-22,0 a22,16 0 1,0 44,0 a22,16 0 1,0 -44,0" />
+
+    <!-- head -->
+    <path
+        android:fillColor="#ef8b2a"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2"
+        android:pathData="M54,46 m-16,0 a16,14 0 1,0 32,0 a16,14 0 1,0 -32,0" />
+
+    <!-- left ear -->
+    <path
+        android:fillColor="#ef8b2a"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2"
+        android:pathData="M42,36 L36,28 L48,34 Z" />
+
+    <!-- right ear -->
+    <path
+        android:fillColor="#ef8b2a"
+        android:strokeColor="#7a3a08"
+        android:strokeWidth="2"
+        android:pathData="M66,36 L72,28 L60,34 Z" />
+
+    <!-- left eye (annoyed half-lid) -->
+    <path
+        android:fillColor="#1f1f1f"
+        android:pathData="M44,46 a3,1.5 0 0,0 6,0 z" />
+
+    <!-- right eye -->
+    <path
+        android:fillColor="#1f1f1f"
+        android:pathData="M58,46 a3,1.5 0 0,0 6,0 z" />
+
+    <!-- nose -->
+    <path
+        android:fillColor="#7a3a08"
+        android:pathData="M52,52 L56,52 L54,55 Z" />
+
+    <!-- belly highlight -->
+    <path
+        android:fillColor="#ffe6c4"
+        android:pathData="M54,76 m-12,0 a12,8 0 1,0 24,0 a12,8 0 1,0 -24,0" />
+</vector>
