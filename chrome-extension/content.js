@@ -1,7 +1,7 @@
-// Injected into every tab. Renders the cat overlay during 'break',
-// a small heads-up toast in the last 30 seconds of 'work', and silently
-// no-ops otherwise. Defends itself against DOM removal, key/scroll close
-// attempts, and Esc.
+// Injected into every tab (and every frame). The top frame renders the cat
+// overlay during 'break' and a heads-up toast in the last 30 seconds of
+// 'work'; subframes only handle media pause/resume. Defends itself against
+// DOM removal, key/scroll close attempts, and Esc.
 
 (function () {
   if (window.__catExtensionLoaded__) return;
@@ -11,6 +11,10 @@
   const ART = window.CatArt;
   const OVERLAY_ID = "cat-extension-overlay";
   const WARNING_ID = "cat-extension-warning";
+  // The overlay belongs to the top frame only — otherwise every iframe on the
+  // page would stack its own copy. Media pause runs in every frame so that
+  // YouTube/Vimeo embeds also stop during the break.
+  const isTopFrame = window.top === window.self;
 
   let lastPayload = null;
   let tickInterval = null;
@@ -19,6 +23,11 @@
   let blockHandler = null;
   let savedHtmlOverflow = null;
   let savedBodyOverflow = null;
+  // Track only the media we paused, so resume restores playback without
+  // un-pausing things the user had already paused or media that started
+  // mid-break.
+  let localPaused = false;
+  let pausedEls = [];
 
   function buildOverlay() {
     const root = document.createElement("div");
@@ -130,6 +139,33 @@
     }
   }
 
+  function pauseMediaForBreak() {
+    if (localPaused) return;
+    const media = document.querySelectorAll("video, audio");
+    pausedEls = [];
+    media.forEach((el) => {
+      if (!el.paused && !el.ended) {
+        try {
+          el.pause();
+          pausedEls.push(el);
+        } catch (_) {}
+      }
+    });
+    localPaused = true;
+  }
+
+  function resumeMediaAfterBreak() {
+    if (!localPaused) return;
+    pausedEls.forEach((el) => {
+      const p = el.play();
+      // Autoplay policies / element removal can reject; swallow — there's
+      // nothing useful to do beyond not crashing the content script.
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    });
+    pausedEls = [];
+    localPaused = false;
+  }
+
   function ensureWarning() {
     let el = document.getElementById(WARNING_ID);
     if (!el) {
@@ -153,6 +189,15 @@
   function render(payload) {
     lastPayload = payload;
     const { state, settings, now } = payload;
+
+    // Media pause runs in every frame; the UI work below is top-frame only.
+    // Unconditional during break — there's no useful state where the cat is
+    // covering the tab but the user still wants audio bleeding through a UI
+    // they can't reach.
+    if (settings.enabled && state.phase === "break") pauseMediaForBreak();
+    else resumeMediaAfterBreak();
+
+    if (!isTopFrame) return;
 
     if (!settings.enabled || state.phase === "idle") {
       removeOverlay();

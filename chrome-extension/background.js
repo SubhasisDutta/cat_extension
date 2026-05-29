@@ -113,14 +113,17 @@ function canInject(url) {
 }
 
 // Idempotent (content.js guards on window.__catExtensionLoaded__).
+// allFrames so the media-pause path in content.js also fires inside
+// embedded players (YouTube/Vimeo iframes etc.). The overlay still renders
+// in the top frame only — content.js gates on window.top === window.self.
 async function ensureInjected(tabId) {
   try {
     await chrome.scripting.insertCSS({
-      target: { tabId },
+      target: { tabId, allFrames: true },
       files: ["overlay.css"],
     });
     await chrome.scripting.executeScript({
-      target: { tabId },
+      target: { tabId, allFrames: true },
       files: ["lib/timer-logic.js", "cat.js", "content.js"],
     });
     return true;
