@@ -139,7 +139,7 @@ once. This is the safety net for tabs that opened during the break.
 
 ## Common tasks
 
-- **Run tests**: `node tests/run-tests.js` from `chrome-extension/`. All 30 must pass.
+- **Run tests**: `node tests/run-tests.js` from `chrome-extension/`. All 31 must pass.
 - **Add a phase / weight test**: append to
   [tests/timer-logic.test.js](tests/timer-logic.test.js). Use
   `assert.eq` / `assert.approx`. No describe / it blocks — just `test(name, fn)`.

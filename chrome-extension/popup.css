@@ -79,12 +79,25 @@ header .subtitle {
   color: #1a1006;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.controls button:not(:disabled):hover {
+  background: #ff9d3f;
 }
 .controls button.ghost {
   background: transparent;
   color: #ffb86b;
   border: 1px solid #604024;
   margin-top: 10px;
+}
+.controls button.ghost:not(:disabled):hover {
+  background: rgba(255, 184, 107, 0.12);
+  border-color: #8a5c30;
+  color: #ffc987;
+}
+.controls button:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
 footer {

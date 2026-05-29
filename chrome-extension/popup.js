@@ -25,11 +25,19 @@ function paint() {
     els.enabled.checked = !!settings.enabled;
   }
 
+  // While a break is running the cat is summoned: the button reads
+  // "I'm summoned" and is disabled, reverting to "Summon me now" once the
+  // (fixed 5-minute) break completes. Driven by phase so it stays correct
+  // across popup close/reopen and missed optimistic updates.
+  const summoned = !!settings.enabled && state.phase === "break";
+  els.summon.textContent = summoned ? "I'm summoned" : "Summon me now";
+  els.summon.disabled = summoned;
+
   const remaining = T.remainingSeconds(state, now);
   if (!settings.enabled) {
     els.phase.textContent = "off duty";
     els.countdown.textContent = "--:--";
-    els.meta.textContent = "the cat is napping elsewhere";
+    els.meta.textContent = "I'm napping elsewhere.";
     return;
   }
   if (state.phase === "work") {
@@ -37,15 +45,15 @@ function paint() {
     els.countdown.textContent = T.formatMMSS(remaining);
     const hrs = T.continuousWorkHours(state.workStreakStartedAt, now);
     const w = T.weightStageForHours(hrs);
-    els.meta.textContent = `${w.label} cat • ${hrs.toFixed(2)}h streak`;
+    els.meta.textContent = `I'm ${w.label} • ${hrs.toFixed(2)}h streak`;
   } else if (state.phase === "break") {
     els.phase.textContent = "break — sit there";
     els.countdown.textContent = T.formatMMSS(remaining);
-    els.meta.textContent = "he is on every tab. all of them.";
+    els.meta.textContent = "I'm on every tab. all of them.";
   } else {
     els.phase.textContent = "idle";
     els.countdown.textContent = "--:--";
-    els.meta.textContent = "no cycle running";
+    els.meta.textContent = "I'm between cycles.";
   }
 }
 
@@ -59,13 +67,20 @@ async function refresh() {
 
 els.save.addEventListener("click", async () => {
   const v = T.clampWorkMinutes(els.workInput.value);
-  const resp = await chrome.runtime.sendMessage({
-    type: "SET_WORK_MINUTES",
-    value: v,
-  });
-  if (resp?.ok) {
-    els.workInput.value = resp.settings.workMinutes;
-    refresh();
+  els.save.textContent = "Saving";
+  els.save.disabled = true;
+  try {
+    const resp = await chrome.runtime.sendMessage({
+      type: "SET_WORK_MINUTES",
+      value: v,
+    });
+    if (resp?.ok) {
+      els.workInput.value = resp.settings.workMinutes;
+      refresh();
+    }
+  } finally {
+    els.save.textContent = "Save";
+    els.save.disabled = false;
   }
 });
 
@@ -78,6 +93,10 @@ els.enabled.addEventListener("change", async () => {
 });
 
 els.summon.addEventListener("click", async () => {
+  // Optimistic; paint() is the source of truth and keeps it in sync with the
+  // actual phase, reverting to "Summon me now" when the break completes.
+  els.summon.textContent = "I'm summoned";
+  els.summon.disabled = true;
   await chrome.runtime.sendMessage({ type: "FORCE_BREAK" });
   refresh();
 });
