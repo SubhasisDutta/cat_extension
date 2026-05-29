@@ -30,7 +30,7 @@
       "js": ["lib/timer-logic.js", "cat.js", "content.js"],
       "css": ["overlay.css"],
       "run_at": "document_idle",
-      "all_frames": false
+      "all_frames": true
     }
   ],
   "web_accessible_resources": [
