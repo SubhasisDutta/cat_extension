@@ -16,8 +16,46 @@
     "You are not the main character. I am.",
   ];
 
+  // How long each phrase holds before the next one. The overlay re-renders
+  // every second to tick the countdown, so without a dwell the phrase would
+  // change every second (unreadable). Dwell is reading-time based: a fixed
+  // "notice + acquire" base plus time proportional to word count, clamped so a
+  // terse line still reads and a long one doesn't overstay. Whole seconds
+  // because the render tick is 1 Hz.
+  //
+  // NOTE: this intentionally diverges from android-app CatArt.kt, whose
+  // phraseForSecond still advances every second. Scoped to the extension on
+  // request; port this over if the Android overlay should match.
+  const PHRASE_BASE_SECONDS = 1.5;
+  const PHRASE_WORDS_PER_SECOND = 2.5;
+  const PHRASE_MIN_SECONDS = 4;
+  const PHRASE_MAX_SECONDS = 8;
+
+  function phraseDwellSeconds(phrase) {
+    const words = phrase.trim().split(/\s+/).length;
+    const raw = PHRASE_BASE_SECONDS + words / PHRASE_WORDS_PER_SECOND;
+    return Math.round(
+      Math.min(PHRASE_MAX_SECONDS, Math.max(PHRASE_MIN_SECONDS, raw))
+    );
+  }
+
+  // Length of one full pass through PHRASES, in seconds.
+  const PHRASE_CYCLE_SECONDS = PHRASES.reduce(
+    (sum, p) => sum + phraseDwellSeconds(p),
+    0
+  );
+
+  // Which phrase shows at `sec` on the clock. Each phrase owns a contiguous,
+  // word-count-sized slot; the schedule repeats every PHRASE_CYCLE_SECONDS.
+  // Pure function of the second, so every tab (and every render) agrees.
   function phraseForSecond(sec) {
-    return PHRASES[Math.abs(sec) % PHRASES.length];
+    let t = Math.abs(sec) % PHRASE_CYCLE_SECONDS;
+    for (let i = 0; i < PHRASES.length; i++) {
+      const d = phraseDwellSeconds(PHRASES[i]);
+      if (t < d) return PHRASES[i];
+      t -= d;
+    }
+    return PHRASES[PHRASES.length - 1]; // unreachable: modulo keeps t < cycle
   }
 
   // SVG of a fat orange cat. Uses currentColor + CSS vars so we can
@@ -77,7 +115,13 @@
 </svg>`;
   }
 
-  const api = { PHRASES, phraseForSecond, svgMarkup };
+  const api = {
+    PHRASES,
+    phraseForSecond,
+    phraseDwellSeconds,
+    PHRASE_CYCLE_SECONDS,
+    svgMarkup,
+  };
   if (typeof module !== "undefined" && module.exports) {
     module.exports = api;
   } else {
